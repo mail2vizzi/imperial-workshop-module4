@@ -63,4 +63,19 @@ public class CameraTest {
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void switchingCameraOffDuringWriteDoesNotPowerDownSensor(){
+        byte[] data = "Scene captured".getBytes();
+        context.checking(new Expectations(){{
+            oneOf(sensor).powerUp();
+            oneOf(sensor).readData();
+            will(returnValue(data));
+            exactly(1).of(memoryCard).write(data);
+        }});
+        camera.powerOn();
+        camera.pressShutter();
+        camera.powerOff();
+        context.assertIsSatisfied();
+    }
+
 }
