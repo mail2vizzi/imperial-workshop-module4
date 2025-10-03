@@ -7,6 +7,7 @@ public class Camera {
     private final Sensor sensor;
     private final MemoryCard memoryCard;
     private final AtomicBoolean isPowerOn = new AtomicBoolean(false);
+    private final AtomicBoolean isWritingOn = new AtomicBoolean(false);
 
     public Camera(Sensor sensor, MemoryCard memoryCard){
         this.sensor = sensor;
@@ -14,7 +15,8 @@ public class Camera {
     }
 
     public void pressShutter() {
-        if(isPowerOn.get()){
+        if(isPowerOn.get() && !isWritingOn.get()){
+            isWritingOn.set(true);
             memoryCard.write(sensor.readData());
         }
     }
@@ -27,7 +29,12 @@ public class Camera {
     }
 
     public void powerOff() {
-        sensor.powerDown();
+        if(isPowerOn.get()) {
+            isPowerOn.set(false);
+            if(!isWritingOn.get()) {
+                sensor.powerDown();
+            }
+        }
     }
 }
 

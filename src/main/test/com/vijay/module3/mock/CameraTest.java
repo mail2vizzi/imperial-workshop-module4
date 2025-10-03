@@ -71,6 +71,7 @@ public class CameraTest {
             oneOf(sensor).readData();
             will(returnValue(data));
             exactly(1).of(memoryCard).write(data);
+            exactly(0).of(sensor).powerDown();
         }});
         camera.powerOn();
         camera.pressShutter();
