@@ -41,6 +41,13 @@ public class CameraTest {
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void pressingTheShutterWhenThePowerIsOffDoesNothing(){
+        //No action expected on pressShutter.
+        camera.pressShutter();
+        context.assertIsSatisfied();
+    }
+
 
 
 }
