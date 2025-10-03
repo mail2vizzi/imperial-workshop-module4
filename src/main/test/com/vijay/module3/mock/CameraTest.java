@@ -18,7 +18,7 @@ public class CameraTest {
     private MemoryCard memoryCard;
 
     @Before
-    public void setup(){
+    public void setup() {
         sensor = context.mock(Sensor.class);
         memoryCard = context.mock(MemoryCard.class);
         camera = new Camera(sensor, memoryCard);
@@ -26,7 +26,7 @@ public class CameraTest {
 
     @Test
     public void switchingTheCameraOnPowersUpTheSensor() {
-        context.checking(new Expectations(){{
+        context.checking(new Expectations() {{
             exactly(1).of(sensor).powerUp();
         }});
         camera.powerOn();
@@ -35,7 +35,7 @@ public class CameraTest {
 
     @Test
     public void switchingTheCameraOffPowersDownTheSensor() {
-        context.checking(new Expectations(){{
+        context.checking(new Expectations() {{
             oneOf(sensor).powerUp();
             exactly(1).of(sensor).powerDown();
         }});
@@ -45,7 +45,7 @@ public class CameraTest {
     }
 
     @Test
-    public void pressingTheShutterWhenThePowerIsOffDoesNothing(){
+    public void pressingTheShutterWhenThePowerIsOffDoesNothing() {
         //No action expected on pressShutter.
         camera.pressShutter();
         context.assertIsSatisfied();
@@ -54,11 +54,11 @@ public class CameraTest {
     @Test
     public void pressingShutterWithPowerOnCopiesDataToMemoryCard() {
         byte[] data = "Scene captured".getBytes();
-        context.checking(new Expectations(){{
+        context.checking(new Expectations() {{
             oneOf(sensor).powerUp();
             oneOf(sensor).readData();
             will(returnValue(data));
-            exactly(1).of(memoryCard).write(data);
+            exactly(1).of(memoryCard).write(data, camera);
         }});
         camera.powerOn();
         camera.pressShutter();
@@ -66,13 +66,13 @@ public class CameraTest {
     }
 
     @Test
-    public void switchingCameraOffDuringWriteDoesNotPowerDownSensor(){
+    public void switchingCameraOffDuringWriteDoesNotPowerDownSensor() {
         byte[] data = "Beautiful scene captured".getBytes();
-        context.checking(new Expectations(){{
+        context.checking(new Expectations() {{
             oneOf(sensor).powerUp();
             oneOf(sensor).readData();
             will(returnValue(data));
-            exactly(1).of(memoryCard).write(data);
+            exactly(1).of(memoryCard).write(data, camera);
             exactly(0).of(sensor).powerDown();
         }});
         camera.powerOn();
@@ -83,17 +83,20 @@ public class CameraTest {
 
     @Test
     public void sensorPowersDownAfterWriteCompletesIfCameraIsOff() {
-            byte[] data = "Wonderful scene captured".getBytes();
-            context.checking(new Expectations(){{
-                oneOf(sensor).powerUp();
-                oneOf(sensor).readData();
-                will(returnValue(data));
-                exactly(1).of(memoryCard).write(data);
-                exactly(1).of(sensor).powerDown();
-            }});
-            camera.powerOn();
-            camera.pressShutter();
-            camera.powerOff();
-            context.assertIsSatisfied();
+        byte[] data = "Wonderful scene captured".getBytes();
+        WriteListener listener = camera;
+        context.checking(new Expectations() {{
+            oneOf(sensor).powerUp();
+            oneOf(sensor).readData();
+            will(returnValue(data));
+            exactly(1).of(memoryCard).write(data, listener);
+            exactly(1).of(sensor).powerDown();
+        }});
+        camera.powerOn();
+        camera.pressShutter();
+        camera.powerOff();
+        //Event triggered manually upon write complete.
+        camera.writeComplete();
+        context.assertIsSatisfied();
     }
 }

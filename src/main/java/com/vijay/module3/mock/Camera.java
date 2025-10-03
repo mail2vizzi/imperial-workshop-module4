@@ -2,7 +2,7 @@ package com.vijay.module3.mock;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Camera {
+public class Camera implements WriteListener {
 
     private final Sensor sensor;
     private final MemoryCard memoryCard;
@@ -17,7 +17,7 @@ public class Camera {
     public void pressShutter() {
         if (isPowerOn.get() && !isWritingOn.get()) {
             isWritingOn.set(true);
-            memoryCard.write(sensor.readData());
+            memoryCard.write(sensor.readData(), this);
         }
     }
 
@@ -34,6 +34,16 @@ public class Camera {
             if (!isWritingOn.get()) {
                 sensor.powerDown();
             }
+        }
+    }
+
+    @Override
+    public void writeComplete() {
+        if(isWritingOn.get()){
+            isWritingOn.set(false);
+        }
+        if(!isPowerOn.get()){
+            sensor.powerDown();
         }
     }
 }
