@@ -13,12 +13,11 @@ public class Camera {
     }
 
     public void powerOn() {
-        // not implemented
         sensor.powerUp();
     }
 
     public void powerOff() {
-       // not implemented
+        sensor.powerDown();
     }
 }
 
