@@ -36,8 +36,10 @@ public class CameraTest {
     @Test
     public void switchingTheCameraOffPowersDownTheSensor() {
         context.checking(new Expectations(){{
+            oneOf(sensor).powerUp();
             exactly(1).of(sensor).powerDown();
         }});
+        camera.powerOn();
         camera.powerOff();
         context.assertIsSatisfied();
     }
@@ -65,7 +67,7 @@ public class CameraTest {
 
     @Test
     public void switchingCameraOffDuringWriteDoesNotPowerDownSensor(){
-        byte[] data = "Scene captured".getBytes();
+        byte[] data = "Beautiful scene captured".getBytes();
         context.checking(new Expectations(){{
             oneOf(sensor).powerUp();
             oneOf(sensor).readData();
@@ -77,5 +79,21 @@ public class CameraTest {
         camera.pressShutter();
         camera.powerOff();
         context.assertIsSatisfied();
+    }
+
+    @Test
+    public void sensorPowersDownAfterWriteCompletesIfCameraIsOff() {
+            byte[] data = "Wonderful scene captured".getBytes();
+            context.checking(new Expectations(){{
+                oneOf(sensor).powerUp();
+                oneOf(sensor).readData();
+                will(returnValue(data));
+                exactly(1).of(memoryCard).write(data);
+                exactly(1).of(sensor).powerDown();
+            }});
+            camera.powerOn();
+            camera.pressShutter();
+            camera.powerOff();
+            context.assertIsSatisfied();
     }
 }
