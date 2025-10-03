@@ -20,7 +20,7 @@ public class CameraTest {
     @Before
     public void setup(){
         sensor = context.mock(Sensor.class);
-        camera = new Camera();
+        camera = new Camera(sensor);
     }
 
     @Test
