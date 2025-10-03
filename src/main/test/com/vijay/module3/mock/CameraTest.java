@@ -77,5 +77,4 @@ public class CameraTest {
         camera.powerOff();
         context.assertIsSatisfied();
     }
-
 }
