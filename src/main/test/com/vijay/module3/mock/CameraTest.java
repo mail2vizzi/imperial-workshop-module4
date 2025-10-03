@@ -20,6 +20,7 @@ public class CameraTest {
     @Before
     public void setup(){
         sensor = context.mock(Sensor.class);
+        memoryCard = context.mock(MemoryCard.class);
         camera = new Camera(sensor);
     }
 
@@ -48,6 +49,15 @@ public class CameraTest {
         context.assertIsSatisfied();
     }
 
-
+    @Test
+    public void pressingShutterWithPowerOnCopiesDataToMemoryCard() {
+        byte[] data = "Scene captured".getBytes();
+        context.checking(new Expectations(){{
+            exactly(1).of(memoryCard).write(data);
+        }});
+        camera.powerOn();
+        camera.pressShutter();
+        context.assertIsSatisfied();
+    }
 
 }
