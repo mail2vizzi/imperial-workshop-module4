@@ -25,12 +25,22 @@ public class CameraTest {
 
     @Test
     public void switchingTheCameraOnPowersUpTheSensor() {
-
         context.checking(new Expectations(){{
             exactly(1).of(sensor).powerUp();
         }});
         camera.powerOn();
         context.assertIsSatisfied();
     }
+
+    @Test
+    public void switchingTheCameraOffPowersDownTheSensor() {
+        context.checking(new Expectations(){{
+            exactly(1).of(sensor).powerDown();
+        }});
+        camera.powerOff();
+        context.assertIsSatisfied();
+    }
+
+
 
 }
